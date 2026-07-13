@@ -2,17 +2,7 @@
 
 Agent Nonsense is a local, zero-token agent status API with OpenAI Responses, OpenAI Chat Completions, Anthropic Messages, sandboxed file tools, and editable long-form presets.
 
-Agent Nonsense 是一个 API-only 的本地“假工作引擎”：它持续输出类似 coding agent 的研究、读文件、改代码、跑测试和调试状态，但不调用真实模型，不访问网络，也不产生上游 token 费用。它用于体验、开发、演示和集成测试，不代表真实模型已经完成对应工作。
-
-它的核心卖点很直接：不花钱，也能在桌面 Agent 聊天框里体验 token 持续流动的荒诞效果。
-
-## 推广视频
-
-[观看 30 秒推广视频](https://github.com/the-very-pulse-of-that-machine/agent-nonsense/raw/main/media/agent-nonsense-promo.mp4)
-
-![Agent Nonsense 推广视频封面](https://raw.githubusercontent.com/the-very-pulse-of-that-machine/agent-nonsense/main/media/agent-nonsense-promo-poster.png)
-
-视频、封面和合成音轨全部由 [`promo/render_video.py`](https://github.com/the-very-pulse-of-that-machine/agent-nonsense/blob/main/promo/render_video.py) 在本地生成，不依赖外部素材。
+Agent Nonsense 是一个本地 API 服务，提供 OpenAI Responses、OpenAI Chat Completions 和 Anthropic Messages 兼容接口。服务从可编辑的预置内容生成持续状态流，支持按字符输出、随机任务选择、sandbox 文件工具、自定义端口和流速配置。它不连接上游模型，所有兼容接口的 usage 均为 0。
 
 ## 安装
 

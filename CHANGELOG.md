@@ -7,7 +7,6 @@ All notable changes to Agent Nonsense are documented here. The project follows S
 ### Changed
 
 - Slowed the default stream cadence to a 2.0 second base delay with up to 0.32 seconds of random jitter.
-- Added a locally rendered 30-second promotional video, poster, contact sheet, and reproducible renderer.
 - Randomized task selection for every new message while preserving explicit `preset` overrides.
 - Added AI-style Markdown headings, quotes, checklists, emphasis, and fenced tool/status blocks.
 - Added `AGENT_NONSENSE_PORT` as a startup port configuration option.
