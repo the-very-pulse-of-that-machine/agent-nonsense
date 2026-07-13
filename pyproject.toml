@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-nonsense"
+version = "0.1.0"
+description = "A local zero-token agent status API with OpenAI and Anthropic compatible streaming"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Agent Nonsense contributors" }]
+keywords = ["agent", "mock", "openai", "anthropic", "sse", "api", "simulator"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Testing",
+]
+
+[project.urls]
+Homepage = "https://github.com/the-very-pulse-of-that-machine/agent-nonsense"
+Repository = "https://github.com/the-very-pulse-of-that-machine/agent-nonsense"
+Issues = "https://github.com/the-very-pulse-of-that-machine/agent-nonsense/issues"
+
+[project.scripts]
+agent-nonsense = "agent_nonsense.server:main"
+
+[tool.setuptools]
+packages = ["agent_nonsense"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+agent_nonsense = ["presets.json"]

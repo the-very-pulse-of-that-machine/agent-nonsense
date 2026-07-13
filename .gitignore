@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.agent-nonsense-sandbox/
+.coverage
+.pytest_cache/
+.venv/
+build/
+dist/
+sandbox/
