@@ -1,5 +1,9 @@
 # Agent Nonsense
 
+<p align="center">
+  <img src="docs/assets/agent-nonsense.ico" alt="Agent Nonsense icon" width="128">
+</p>
+
 Agent Nonsense is a local, zero-token agent status API with OpenAI Responses, OpenAI Chat Completions, Anthropic Messages, sandboxed file tools, and editable long-form presets.
 
 Agent Nonsense 是一个本地 API 服务，提供 OpenAI Responses、OpenAI Chat Completions 和 Anthropic Messages 兼容接口。服务从可编辑的预置内容生成持续状态流，支持按字符输出、随机任务选择、sandbox 文件工具、自定义端口和流速配置。它不连接上游模型，所有兼容接口的 usage 均为 0。
