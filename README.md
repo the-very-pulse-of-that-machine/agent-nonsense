@@ -10,7 +10,20 @@
 
 ## 安装
 
-需要 Python 3.10 或更高版本，无运行时第三方依赖：
+### 独立桌面 GUI
+
+新增中文 Python + Qt 桌面工作台，支持服务启停、参数配置、三种协议的实时流预览、后台任务、预设编辑和日志导出。
+
+```sh
+python -m pip install ".[gui]"
+python -m agent_nonsense.desktop
+```
+
+也可以运行 `doupi`。完整的虚拟环境、双击启动和 VS Code 调试说明见 [桌面版使用指南](docs/DESKTOP.md)。纯 API 安装无需 Qt，继续使用下方命令。
+
+![豆皮桌面控制台](docs/assets/doupi-overview.png)
+
+仅 API 模式需要 Python 3.10 或更高版本，无运行时第三方依赖：
 
 ```powershell
 python -m pip install .

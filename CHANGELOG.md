@@ -4,6 +4,18 @@ All notable changes to Agent Nonsense are documented here. The project follows S
 
 ## [Unreleased]
 
+### Fixed
+
+- Preview dialogue selection now updates its question and clears the previous output; switching dialogue or protocol during streaming cancels the old reply and starts the selected conversation immediately.
+- Kept the preview send action available during streaming so an edited question can be resent; stale replies no longer write into a replacement conversation.
+- Restored the repository's original Doupi icon in the sidebar, dashboard, preview, and application window, including installed wheels.
+
+### Added
+
+- Optional Python/Qt desktop app (`pip install '.[gui]'`, `doupi`) with a Chinese UI, service lifecycle, configuration, real streaming previews, background jobs, preset editing, and logs.
+- Personal preset copies, validation before atomic saves, loopback-only requests, port-conflict reporting, and cleanup of owned processes on close.
+- Cross-platform launchers, VS Code debug configurations, desktop documentation, and offscreen GUI integration tests.
+
 ### Changed
 
 - Slowed the default stream cadence to a 2.0 second base delay with up to 0.32 seconds of random jitter.
