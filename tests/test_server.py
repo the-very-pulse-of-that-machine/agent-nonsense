@@ -1,4 +1,5 @@
 import json
+from itertools import islice
 import tempfile
 import threading
 import unittest
@@ -7,7 +8,7 @@ import urllib.request
 from pathlib import Path
 from unittest import mock
 
-from agent_nonsense.server import build_argument_parser, create_server, split_stream_text_event
+from agent_nonsense.server import MockAgentServer, build_argument_parser, create_server, split_stream_text_event
 
 
 class ConfigurationTestCase(unittest.TestCase):
@@ -153,6 +154,79 @@ class ServerTestCase(unittest.TestCase):
         self.assertIn(first_preset["closing"], first_content)
         self.assertIn(second_preset["closing"], second_content)
         self.assertNotEqual(first_content, second_content)
+
+    def test_random_requests_never_immediately_repeat(self):
+        self.server.presets = self.server.presets[:2]
+        # Always take the first available candidate: exclusion, rather than luck,
+        # must make consecutive random requests different.
+        with mock.patch("agent_nonsense.server.random.choice", side_effect=lambda items: items[0]):
+            for index in range(6):
+                _, _, raw = self.request(
+                    "/v1/chat/completions",
+                    {"messages": [{"role": "user", "content": "相同问题"}]},
+                )
+                content = json.loads(raw)["choices"][0]["message"]["content"]
+                self.assertIn(self.server.presets[index % 2]["closing"], content)
+
+    def test_continuous_random_rotation_for_every_protocol(self):
+        self.server.presets = [
+            {"id": "a", "title": "任务 A", "steps": [{"text": "A1"}, {"text": "A2"}]},
+            {"id": "b", "title": "任务 B", "steps": [{"text": "B1"}, {"text": "B2"}]},
+        ]
+        handler = object.__new__(MockAgentServer)
+        handler.server = self.server
+        for method in (handler.responses_stream_events, handler.openai_stream_events, handler.claude_stream_events):
+            with self.subTest(protocol=method.__name__):
+                self.server.last_random_preset_id = None
+                with mock.patch("agent_nonsense.server.random.choice", side_effect=lambda items: items[0]):
+                    source = method({"simulate_tools": False}, "", [], 3, True)
+                    stages, selected = [], []
+                    for event in source:
+                        if event.get("type") == "response.output_text.delta":
+                            stages.append(event["delta"].strip())
+                        elif event.get("object") == "chat.completion.chunk":
+                            stages.append(event["choices"][0]["delta"]["content"].strip())
+                        elif event.get("type") == "content_block_delta":
+                            stages.append(event["delta"]["text"].strip())
+                        preset = event.get("agent_nonsense", {}).get("preset")
+                        if preset:
+                            selected.append(preset["id"])
+                        if len(stages) == 6:
+                            break
+                    source.close()
+                self.assertEqual(stages, ["A1", "A2", "B1", "B2", "A1", "A2"])
+                self.assertEqual(selected, ["a", "b", "a"])
+
+    def test_explicit_and_single_presets_keep_streaming(self):
+        self.server.presets = [
+            {"id": "a", "steps": [{"text": "A1"}, {"text": "A2"}]},
+            {"id": "b", "steps": [{"text": "B1"}]},
+        ]
+        handler = object.__new__(MockAgentServer)
+        handler.server = self.server
+        body = {"preset": "A", "simulate_tools": False}
+        source = handler.conversation_events(body, "", [], 3, True)
+        self.assertEqual([e["text"] for e in islice(source, 6)], ["A1", "A2"] * 3)
+        source.close()
+        self.server.presets = self.server.presets[:1]
+        source = handler.conversation_events({"simulate_tools": False}, "", [], 3, True)
+        self.assertEqual([e["text"] for e in islice(source, 6)], ["A1", "A2"] * 3)
+        source.close()
+
+    def test_finite_random_stream_keeps_selected_preset_and_closing(self):
+        self.server.presets = [
+            {"id": "a", "closing": "任务 A 结束", "steps": [{"text": "A1"}]},
+            {"id": "b", "closing": "任务 B 结束", "steps": [{"text": "B1"}]},
+        ]
+        handler = object.__new__(MockAgentServer)
+        handler.server = self.server
+        with mock.patch("agent_nonsense.server.random.choice", side_effect=lambda items: items[0]) as choose:
+            events = list(handler.responses_stream_events({"simulate_tools": False}, "", [], 3, False))
+        self.assertEqual(choose.call_count, 1)
+        text = "".join(e["delta"] for e in events if e.get("type") == "response.output_text.delta")
+        self.assertIn("A1\nA1\nA1\n", text)
+        self.assertIn("任务 A 结束", text)
+        self.assertNotIn("B1", text)
 
     def test_stream_jitter_never_precedes_base_delay(self):
         self.server.delay = 2.0

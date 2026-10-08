@@ -38,7 +38,9 @@ Accepts a string or Responses-style `input` list. Supported Agent Nonsense exten
 
 Finite streams end with `response.completed`. Continuous streams end only when the client disconnects.
 
-Loaded presets are compiled to at least 5,000 characters each. Every new request randomly selects one unless the explicit `preset` field is supplied. One streaming response keeps its selected task for the lifetime of that response. Visible text uses Markdown headings, blockquotes, checklists, emphasis, and fenced status/tool blocks without describing the internal selection process.
+Loaded presets are compiled to at least 5,000 characters each. Every new random request avoids the server's previous random selection when another preset is available. Finite responses keep one selected task. Continuous random streams finish all stages and tool results of a preset, then randomly select another, excluding the task just played. A valid explicit `preset` stays fixed and loops in continuous mode. A single available preset keeps looping.
+
+The first stage of each preset round carries an optional `agent_nonsense.preset` object (`id`, `title`) on its SSE text chunks in all three protocols. The desktop preview uses this extension to show the actual current task while keeping the random selector active. Other clients may ignore this field. Visible text uses Markdown headings, blockquotes, checklists, emphasis, and fenced status/tool blocks without describing the internal selection process.
 
 ### `POST /v1/chat/completions`
 

@@ -17,6 +17,7 @@ class Backend(QObject):
     error = Signal(str)
     health = Signal(dict)
     stream_text = Signal(str)
+    stream_preset = Signal(dict)
     stream_finished = Signal(str)
 
     def __init__(self, parent=None):
@@ -207,6 +208,7 @@ class Backend(QObject):
         self.stream = reply
         decoder = SSEDecoder()
         self._decoder = decoder
+        last_preset_id = None
         # A watchdog detects a stalled connection without limiting long streams.
         watchdog = QTimer(reply)
         watchdog.setSingleShot(True)
@@ -220,6 +222,7 @@ class Backend(QObject):
         watchdog.start()
 
         def consume(final=False):
+            nonlocal last_preset_id
             if self.stream is not reply:
                 return
             raw = bytes(reply.readAll())
@@ -237,6 +240,13 @@ class Backend(QObject):
                     event = json.loads(data)
                     if not isinstance(event, dict):
                         raise ValueError("流式事件必须为 JSON 对象")
+                    metadata = event.get("agent_nonsense")
+                    preset = metadata.get("preset") if isinstance(metadata, dict) else None
+                    if isinstance(preset, dict) and preset.get("id") and preset["id"] != last_preset_id:
+                        last_preset_id = preset["id"]
+                        self.stream_preset.emit(preset)
+                        if self.stream is not reply:
+                            return
                     text = event_text(event)
                     if text:
                         self.stream_text.emit(text)

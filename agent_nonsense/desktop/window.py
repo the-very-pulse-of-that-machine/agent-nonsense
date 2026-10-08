@@ -31,7 +31,7 @@ DESCRIPTIONS = (
 STATES = {"stopped": "尚未启动", "starting": "正在启动", "running": "服务运行中",
           "stopping": "正在停止", "error": "启动异常"}
 JOB_STATES = {"queued": "排队中", "running": "运行中", "stopped": "已停止", "completed": "已完成"}
-DEFAULT_PREVIEW_PROMPT = "请检查这个项目的文件读写和异常处理。"
+DEFAULT_PREVIEW_PROMPT = "请展示一项项目排查任务的处理过程。"
 
 
 class MainWindow(QMainWindow):
@@ -274,6 +274,10 @@ class MainWindow(QMainWindow):
         self.preview_events.setSuffix(" 阶段")
         controls.box.addLayout(row(self.protocol, self.preset_combo, None,
                                    self.preview_events, self.preview_continuous))
+        self.preview_preset = label("当前剧本：等待请求", muted=True)
+        self.preview_preset.setWordWrap(True)
+        controls.box.addWidget(self.preview_preset)
+        self.preview_continuous.setToolTip("随机模式下，每份完整剧本结束后自动换下一份；指定剧本则循环播放。")
         self.prompt = QPlainTextEdit(DEFAULT_PREVIEW_PROMPT)
         self.prompt.setMaximumHeight(85)
         self.prompt.setPlaceholderText("输入一条测试请求…")
@@ -491,10 +495,11 @@ class MainWindow(QMainWindow):
         self.backend.error.connect(lambda text: self.notify(text, error=True))
         self.backend.health.connect(self._health_changed)
         self.backend.stream_text.connect(self._stream_text)
+        self.backend.stream_preset.connect(self._stream_preset)
         self.backend.stream_finished.connect(self._stream_finished)
         self.preset_combo.currentIndexChanged.connect(self._preview_dialogue_changed)
         self.protocol.currentIndexChanged.connect(self._preview_protocol_changed)
-        self.preset_combo.setToolTip("切换剧本会同步更新问题；输出中切换会立即开始新对话。")
+        self.preset_combo.setToolTip("随机模式避免连续重复；勾选持续输出可轮播。指定剧本后只播放该剧本。")
         self.preview_continuous.toggled.connect(lambda checked: self.preview_events.setEnabled(not checked))
 
     def append_log(self, text):
@@ -651,6 +656,7 @@ class MainWindow(QMainWindow):
         self.backend.cancel_stream()
         self._clear_preview()
         self.output_stack.setCurrentIndex(1)
+        self.preview_preset.setText("当前剧本：正在选择…")
         path, body = preview_request(self.protocol.currentText(), prompt, self.preset_combo.currentData() or "",
                                      self.preview_continuous.isChecked(), self.preview_events.value())
         self.backend.start_stream(path, body)
@@ -668,6 +674,7 @@ class MainWindow(QMainWindow):
         self.output.clear()
         self.char_count.setText("0 字符")
         self.output_stack.setCurrentIndex(0)
+        self.preview_preset.setText("当前剧本：等待请求")
 
     def _preview_dialogue_changed(self, _index=0):
         active = self.backend.stream is not None
@@ -690,6 +697,11 @@ class MainWindow(QMainWindow):
         else:
             self.preview_status.setText("已切换协议 · 点击发送请求" if self.backend.state == "running"
                                         else "启动服务后即可预览")
+
+    def _stream_preset(self, preset):
+        title = str(preset.get("title") or preset["id"])
+        self.preview_preset.setText("当前剧本：" + title)
+        self.append_log("预览剧本：" + title)
 
     def _stream_text(self, text):
         self.stream_chars += len(text)
@@ -827,7 +839,7 @@ class MainWindow(QMainWindow):
         self.preset_questions = {preset["id"]: preset["question"] for preset in payload["presets"]}
         self.preset_combo.blockSignals(True)
         self.preset_combo.clear()
-        self.preset_combo.addItem("随机选择剧本", "")
+        self.preset_combo.addItem("随机剧本 · 持续时轮播", "")
         self.preset_list.blockSignals(True)
         self.preset_list.clear()
         self.preset_ids = []

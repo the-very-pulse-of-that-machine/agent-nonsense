@@ -93,6 +93,54 @@ class DesktopQtTestCase(unittest.TestCase):
         self.assertIsNone(self.window.backend.stream)
         self.assertEqual(self.window.backend.process.state(), QProcess.ProcessState.NotRunning)
 
+    def test_random_resends_display_different_actual_presets_for_every_protocol(self):
+        self.window.tools.setChecked(False)
+        self.window.preview_events.setValue(1)
+        self.start()
+        selected = []
+        self.window.backend.stream_preset.connect(lambda preset: selected.append(preset))
+        for protocol in ("Responses", "Chat Completions", "Messages"):
+            with self.subTest(protocol=protocol):
+                self.window.protocol.setCurrentText(protocol)
+                for _ in range(2):
+                    before = len(selected)
+                    self.window.start_preview()
+                    self.wait_for(lambda: self.window.backend.stream is None)
+                    self.assertEqual(len(selected), before + 1)
+                    self.assertEqual(self.window.preset_combo.currentData(), "")
+                    title = selected[-1]["title"]
+                    self.assertEqual(self.window.preview_preset.text(), "当前剧本：" + title)
+                    self.assertIn(title, self.window.stream_buffer)
+                    if before:
+                        self.assertNotEqual(selected[-1]["id"], selected[-2]["id"])
+
+    def test_continuous_random_rotation_updates_label_without_restarting_request(self):
+        import json
+        payload = json.loads(self.window.preset_editor.toPlainText())
+        payload["presets"] = payload["presets"][:2]
+        for preset in payload["presets"]:
+            preset["steps"] = preset["steps"][:1]
+        self.window.preset_editor.setPlainText(json.dumps(payload, ensure_ascii=False))
+        self.assertTrue(self.window.save_presets())
+        self.window.tools.setChecked(False)
+        self.window.delay.setValue(0.2)
+        self.window.preview_continuous.setChecked(True)
+        self.start()
+        selected = []
+        self.window.backend.stream_preset.connect(lambda preset: selected.append(preset))
+        self.window.start_preview()
+        reply = self.window.backend.stream
+        self.wait_for(lambda: len(selected) >= 2)
+        self.assertIs(self.window.backend.stream, reply)
+        self.assertNotEqual(selected[0]["id"], selected[1]["id"])
+        self.assertEqual(self.window.preset_combo.currentData(), "")
+        self.assertEqual(self.window.preview_preset.text(), "当前剧本：" + selected[-1]["title"])
+        self.wait_for(lambda: selected[-1]["title"] in self.window.stream_buffer)
+        for preset in selected[:2]:
+            self.assertIn(preset["title"], self.window.stream_buffer)
+        self.window.backend.cancel_stream()
+        self.assertEqual(self.window.preview_status.text(), "已停止输出")
+
     def test_background_job_lifecycle(self):
         self.window.delay.setValue(0.1)
         self.start()

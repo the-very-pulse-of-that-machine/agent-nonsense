@@ -772,12 +772,12 @@ class MockAgentServer(BaseHTTPRequestHandler):
         except (PermissionError, FileNotFoundError, ValueError) as exc:
             yield self.tool_event(f"工具返回异常：{exc}，我先保留当前上下文并继续排查。")
 
-    def select_preset(self, body, prompt):
+    def select_preset(self, body, prompt, *, advance=False):
         presets = getattr(self.server, "presets", [])
         if not presets or body.get("use_presets") is False:
             return None
         selected_id = body.get("_selected_preset")
-        if selected_id:
+        if selected_id and not advance:
             selected = next((preset for preset in presets if preset.get("id") == selected_id), None)
             if selected:
                 return selected
@@ -787,7 +787,16 @@ class MockAgentServer(BaseHTTPRequestHandler):
             if matches:
                 body["_selected_preset"] = matches[0].get("id")
                 return matches[0]
-        selected = random.choice(presets)
+        # Keep finite responses pinned, but choose a different task for the next
+        # request or continuous round. Protect the shared history across clients.
+        with self.server.presets_lock:
+            previous_id = selected_id if advance else None
+            excluded = {previous_id, self.server.last_random_preset_id}
+            candidates = [preset for preset in presets if preset.get("id") not in excluded]
+            if not candidates:
+                candidates = [preset for preset in presets if preset.get("id") != previous_id] or presets
+            selected = random.choice(candidates)
+            self.server.last_random_preset_id = selected.get("id")
         body["_selected_preset"] = selected.get("id")
         return selected
 
@@ -803,14 +812,24 @@ class MockAgentServer(BaseHTTPRequestHandler):
         round_index = 0
         preset = self.select_preset(body, prompt)
         if preset:
-            source = generate_preset_events(preset, None)
-            while event_limit is None or conversation_event_count < event_limit:
-                event = next(source)
-                conversation_event_count += 1
-                yield event
-                if include_tool_text and tools_enabled and event.get("tool"):
-                    round_index += 1
-                    yield from self.simulated_tool_call(prompt, round_index, event["tool"])
+            while preset.get("steps") and (event_limit is None or conversation_event_count < event_limit):
+                # Finish all stages and their tool results before rotating. An
+                # explicit preset keeps looping; a finite response stays pinned.
+                source = generate_preset_events(preset, len(preset["steps"]))
+                for index, event in enumerate(source):
+                    if event_limit is not None and conversation_event_count >= event_limit:
+                        return
+                    if index == 0:
+                        event["metadata"] = {"agent_nonsense": {"preset": {
+                            "id": preset.get("id"), "title": preset.get("title", preset.get("id", "")),
+                        }}}
+                    conversation_event_count += 1
+                    yield event
+                    if include_tool_text and tools_enabled and event.get("tool"):
+                        round_index += 1
+                        yield from self.simulated_tool_call(prompt, round_index, event["tool"])
+                if continuous:
+                    preset = self.select_preset(body, prompt, advance=True)
             return
         source = generate_conversation_events(prompt, modules, None)
         while event_limit is None or conversation_event_count < event_limit:
@@ -831,6 +850,7 @@ class MockAgentServer(BaseHTTPRequestHandler):
                 "created": now_unix(),
                 "model": model,
                 "choices": [{"index": 0, "delta": {"content": event["text"] + "\n"}, "finish_reason": None}],
+                **event.get("metadata", {}),
             }
         if continuous:
             return
@@ -941,6 +961,7 @@ class MockAgentServer(BaseHTTPRequestHandler):
                 "output_index": 0,
                 "content_index": 0,
                 "delta": event["text"] + "\n",
+                **event.get("metadata", {}),
             }
             if native_tools and (event_index == 1 or event_index % 3 == 0):
                 yield from self.native_response_tool_round(prompt, event_index, output_items, item_id)
@@ -1035,6 +1056,7 @@ class MockAgentServer(BaseHTTPRequestHandler):
                 "type": "content_block_delta",
                 "index": 0,
                 "delta": {"type": "text_delta", "text": event["text"] + "\n"},
+                **event.get("metadata", {}),
             }
         if continuous:
             return
@@ -1195,6 +1217,8 @@ def create_server(
     server.max_write_bytes = max_write_bytes
     server.quiet = quiet
     server.presets = load_presets(presets)
+    server.presets_lock = threading.Lock()
+    server.last_random_preset_id = None
     server.jobs = {}
     server.jobs_lock = threading.Lock()
     return server
