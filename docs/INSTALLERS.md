@@ -1,6 +1,7 @@
 # 桌面安装包
 
-在 [GitHub Releases](https://github.com/wahahaha-cpu/agent-nonsense/releases) 下载。
+正式版本由维护者在 [原仓库 GitHub Releases](https://github.com/the-very-pulse-of-that-machine/agent-nonsense/releases) 发布。
+合并前可试用贡献者 Fork 中基于提交 `90143f9` 的[已验证预览包](https://github.com/wahahaha-cpu/agent-nonsense/releases/tag/desktop-preview-90143f9cf14b)；该版本包含全部桌面功能，后续上游适配仅调整项目地址和发布触发方式。
 无需安装 Python、Qt 或 VS Code。
 
 | 系统 | 安装包 | 使用方式 |
@@ -51,6 +52,6 @@ macOS 使用系统 `codesign`、`ditto` 和 `hdiutil`。
 5. 退出窗口并检查服务子进程已清理，安装资源未被修改。
 6. 安装/提取安装包，重新运行上述自检；Windows 和 Linux 还验证卸载。
 
-构建失败会保留诊断文件。只有四个平台全部通过，发布任务才会校验所有 SHA-256 并上传到 GitHub Releases。PR 运行只生成 Actions 附件；`codex/desktop-installers` 分支推送自动发布预览包；版本标签推送发布正式包。也可以在 Actions 手动运行，勾选 `publish` 生成预览版。
+构建失败会保留诊断文件。只有四个平台全部通过，发布任务才会校验所有 SHA-256 并上传到当前仓库的 GitHub Releases。PR 运行只生成 Actions 附件；`main` 分支推送自动发布预览包；版本标签推送发布正式包。也可以在 Actions 手动运行，勾选 `publish` 生成预览版。
 
 Windows 使用独立的 `doupi-server.exe` 保留进程日志管道，与 GUI 共享包内运行时；macOS/Linux 通过同一个应用的内部 `--doupi-server` 入口启动服务。它们都不调用用户系统里的 Python。

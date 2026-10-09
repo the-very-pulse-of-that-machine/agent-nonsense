@@ -101,7 +101,7 @@ Maintainer: Agent Nonsense contributors <noreply@github.com>
 Installed-Size: {size}
 Depends: libc6 (>= 2.35), libglib2.0-0, libgl1, libegl1, libfontconfig1, libdbus-1-3, libxkbcommon-x11-0, libxcb-cursor0, libxcb-icccm4, libxcb-keysyms1, libxcb-shape0, libxcb-xinerama0, libxcb-xkb1
 Recommends: fonts-noto-cjk
-Homepage: https://github.com/wahahaha-cpu/agent-nonsense
+Homepage: https://github.com/the-very-pulse-of-that-machine/agent-nonsense
 Description: Doupi local agent desktop workbench
  Self-contained Python/Qt GUI with local zero-token API streaming.
 """

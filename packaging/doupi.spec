@@ -34,7 +34,7 @@ if sys.platform == "win32":
 collection = COLLECT(*executables, a.binaries, a.datas, strip=False, upx=False, name="Doupi")
 if sys.platform == "darwin":
     app = BUNDLE(
-        collection, name="豆皮.app", icon=icon, bundle_identifier="io.github.wahahaha-cpu.doupi",
+        collection, name="豆皮.app", icon=icon, bundle_identifier="io.github.the-very-pulse-of-that-machine.doupi",
         info_plist={
             "CFBundleDisplayName": "豆皮", "CFBundleShortVersionString": version,
             "CFBundleVersion": version, "NSHighResolutionCapable": True,

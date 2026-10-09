@@ -12,4 +12,4 @@ macOS 如被系统拦截，请在“系统设置 → 隐私与安全性”中核
 设置、个人剧本和 sandbox 保存在当前用户的数据目录，不写入安装目录。
 卸载应用不会删除这些个人数据。
 
-项目与源代码：https://github.com/wahahaha-cpu/agent-nonsense
+项目与源代码：https://github.com/the-very-pulse-of-that-machine/agent-nonsense

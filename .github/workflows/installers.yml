@@ -2,7 +2,7 @@ name: Desktop installers
 
 on:
   push:
-    branches: [codex/desktop-installers]
+    branches: [main]
     tags: [desktop-v*]
   pull_request:
     paths:

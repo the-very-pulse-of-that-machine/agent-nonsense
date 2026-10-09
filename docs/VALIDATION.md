@@ -1,6 +1,6 @@
 # 桌面 GUI 验证记录
 
-验证日期：2026-10-09。开发分支：`codex/desktop-installers`。
+验证日期：2026-10-09。桌面及安装包开发分支：`codex/desktop-installers`；上游贡献分支：`codex/upstream-desktop-gui`。
 
 本机环境：macOS、Python 3.12.14、PySide6 Essentials / Qt 6.11.2。
 
@@ -42,6 +42,6 @@
 
 ## 验证范围
 
-本机运行验证覆盖 macOS。Windows / Linux 已在原生 GitHub Actions runner 完成安装、包内服务、HTTP/SSE、自检和卸载检查；最终提交的四平台结果以 [PR #1](https://github.com/wahahaha-cpu/agent-nonsense/pull/1) 的 Actions 检查为准。原生界面的鼠标点击自动化工具发生超时，界面和交互通过真实 Qt 窗口渲染与 Qt 集成测试完成验证。
+本机运行验证覆盖 macOS。提交 `90143f9` 的 Windows / Linux 已在原生 GitHub Actions runner 完成安装、包内服务、HTTP/SSE、自检和卸载检查，四个平台结果见贡献者 Fork 的[安装包工作流](https://github.com/wahahaha-cpu/agent-nonsense/actions/runs/37876421278)。上游贡献分支在此基础上恢复原仓库项目地址，并将自动预览发布触发分支改为 `main`；上游 PR 的检查以其自身 Actions 为准。原生界面的鼠标点击自动化工具发生超时，界面和交互通过真实 Qt 窗口渲染与 Qt 集成测试完成验证。
 
 本地验证完成后提交到 GitHub；远程 CI 状态以仓库 Actions 页面为准。
