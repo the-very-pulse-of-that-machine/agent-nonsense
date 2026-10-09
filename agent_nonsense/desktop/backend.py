@@ -1,5 +1,6 @@
 """Asynchronous loopback client and owned server-process lifecycle."""
 import json
+import socket
 import time
 from dataclasses import replace
 from pathlib import Path
@@ -29,6 +30,7 @@ class Backend(QObject):
         self.process = QProcess(self)
         environment = QProcessEnvironment.systemEnvironment()
         environment.insert("PYTHONIOENCODING", "utf-8")
+        environment.insert("PYTHONUNBUFFERED", "1")
         self.process.setProcessEnvironment(environment)
         self.process.setWorkingDirectory(str(Path(__file__).resolve().parents[2]))
         self.process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
@@ -64,6 +66,17 @@ class Backend(QObject):
             self.error.emit(str(exc))
             return
         self.config = replace(config)
+        # A TCP-only preflight gives the same occupied-port message on Windows,
+        # where binding an existing listener can report WSAEACCES (10013).
+        try:
+            with socket.socket() as probe:
+                probe.settimeout(0.1)
+                if probe.connect_ex(("127.0.0.1", config.port)) == 0:
+                    self._set_state("error")
+                    self.error.emit(f"端口 {config.port} 已被占用，请更换端口后重试。")
+                    return
+        except OSError:
+            pass
         self._ready = False
         self._output_buffer = self._last_output = ""
         self._launch_time = time.monotonic()

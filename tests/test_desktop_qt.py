@@ -54,7 +54,16 @@ class DesktopQtTestCase(unittest.TestCase):
             if predicate():
                 return
             QTest.qWait(20)
-        self.fail("Timed out; logs:\n" + self.window.logs.toPlainText())
+        backend = self.window.backend
+        diagnostics = f"state={backend.state}, process={backend.process.state()}, pid={backend.process.processId()}, ready={backend._ready}"
+        if backend.config and backend.process.state() == QProcess.ProcessState.Running:
+            import urllib.request
+            try:
+                with urllib.request.urlopen(backend.config.base_url + "/health", timeout=0.5) as response:
+                    diagnostics += ", HTTP health=" + str(response.status)
+            except Exception as exc:
+                diagnostics += ", HTTP health=" + str(exc)
+        self.fail("Timed out; " + diagnostics + "\nChild output:\n" + backend._last_output + "\nLogs:\n" + self.window.logs.toPlainText())
 
     def start(self):
         self.window.toggle_server()

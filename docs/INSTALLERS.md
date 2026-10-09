@@ -12,7 +12,7 @@
 
 Windows 安装到当前用户目录，不要求管理员权限，支持卸载。
 Linux 安装到 `/opt/doupi`，创建 `doupi` 命令和桌面菜单入口；卸载使用 `sudo apt remove doupi`。
-macOS 卸载时将应用移入废纸篓。上述卸载均保留个人配置、剧本和 sandbox。
+macOS 需要 13.0 或更高版本，卸载时将应用移入废纸篓。上述卸载均保留个人配置、剧本和 sandbox。
 
 另提供 Windows portable.zip、Linux tar.gz、macOS app.zip。便携包需完整解压后启动，不能单独移动可执行文件。Linux tar.gz 仍需兼容的 glibc（2.35+）和 Qt 系统库，具体依赖见构建脚本的 DEB `Depends`。
 

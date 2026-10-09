@@ -1277,13 +1277,13 @@ def main():
         quiet=args.quiet,
     )
 
-    print(f"agent-nonsense listening on http://{args.host}:{args.port}")
-    print(f"sandbox: {server.sandbox.resolve()}")
+    print(f"agent-nonsense listening on http://{args.host}:{args.port}", flush=True)
+    print(f"sandbox: {server.sandbox.resolve()}", flush=True)
     stream_mode = "continuous compatible streams" if server.continuous_stream else "finite compatible streams"
     tool_mode = "sandbox tools enabled" if server.simulate_tools else "sandbox tools opt-in"
     if server.native_tools:
         tool_mode += "; native tool loop"
-    print(f"mode: local zero-token simulator; upstream calls: 0; {stream_mode}; {tool_mode}; presets: {len(server.presets)}")
+    print(f"mode: local zero-token simulator; upstream calls: 0; {stream_mode}; {tool_mode}; presets: {len(server.presets)}", flush=True)
     server.serve_forever()
 
 

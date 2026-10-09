@@ -1,4 +1,8 @@
 import json
+import os
+import socket
+import subprocess
+import sys
 from itertools import islice
 import tempfile
 import threading
@@ -12,6 +16,30 @@ from agent_nonsense.server import MockAgentServer, build_argument_parser, create
 
 
 class ConfigurationTestCase(unittest.TestCase):
+    def test_startup_readiness_is_flushed_without_unbuffered_python(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with socket.socket() as sock:
+                sock.bind(("127.0.0.1", 0))
+                port = sock.getsockname()[1]
+            environment = dict(os.environ)
+            environment.pop("PYTHONUNBUFFERED", None)
+            process = subprocess.Popen(
+                [sys.executable, "-m", "agent_nonsense", "--port", str(port), "--sandbox", directory],
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8", env=environment,
+            )
+            lines = []
+            reader = threading.Thread(target=lambda: lines.append(process.stdout.readline()), daemon=True)
+            try:
+                reader.start()
+                reader.join(timeout=5)
+                self.assertTrue(lines, "Server readiness was buffered")
+                self.assertIn(f"listening on http://127.0.0.1:{port}", lines[0])
+            finally:
+                process.terminate()
+                process.wait(timeout=5)
+                reader.join(timeout=2)
+                process.stdout.close()
+
     def test_port_can_come_from_environment_or_command_line(self):
         with mock.patch.dict("os.environ", {"AGENT_NONSENSE_PORT": "9901"}):
             parser = build_argument_parser()

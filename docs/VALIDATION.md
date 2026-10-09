@@ -8,7 +8,7 @@
 
 | 检查 | 结果 |
 | --- | --- |
-| `python -m unittest discover -s tests -v` | 40 项全部通过，包含原有 13 项与新增 27 项 |
+| `python -m unittest discover -s tests -v` | 41 项全部通过，包含原有 13 项与新增 28 项 |
 | `python -m compileall -q agent_nonsense` | 通过 |
 | `git diff --check` | 通过 |
 | wheel 构建 | 通过 |

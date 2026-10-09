@@ -11,8 +11,9 @@ bootloader. Original Doupi source is distributed under the included MIT license.
 - PyInstaller: https://pyinstaller.org/en/stable/license.html
   (GPLv2 with the exception permitting distribution of bundled applications).
 
-PySide6 and Shiboken6 distribution metadata and their license files are retained
-in the bundle. Qt is dynamically linked and retained in the onedir/app bundle;
+Full LGPLv3, GPLv3, Qt GPL exception, Python license and PyInstaller exception
+texts are included in this directory. PySide6 and Shiboken6 distribution metadata
+are retained in the bundle. Qt is dynamically linked in the onedir/app bundle;
 users may replace the libraries with compatible modified versions. Do not move
 the executable away from its companion runtime. Exact dependency versions are
 recorded in BUILD-INFO.json next to each downloadable installer.

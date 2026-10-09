@@ -13,6 +13,7 @@ data = [
     (str(root / "agent_nonsense" / "desktop" / "assets" / "agent-nonsense.ico"), "agent_nonsense/desktop/assets"),
     (str(root / "LICENSE"), "licenses"),
     (str(root / "packaging" / "THIRD_PARTY_NOTICES.md"), "licenses"),
+    (str(root / "packaging" / "licenses"), "licenses"),
 ]
 data += copy_metadata("PySide6-Essentials") + copy_metadata("shiboken6")
 a = Analysis(
@@ -38,5 +39,6 @@ if sys.platform == "darwin":
             "CFBundleDisplayName": "豆皮", "CFBundleShortVersionString": version,
             "CFBundleVersion": version, "NSHighResolutionCapable": True,
             "NSPrincipalClass": "NSApplication",
+            "LSMinimumSystemVersion": "13.0",
         },
     )
