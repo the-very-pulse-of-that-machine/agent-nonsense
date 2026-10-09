@@ -166,7 +166,7 @@ def main():
             with path.open("rb") as stream:
                 checksum = hashlib.file_digest(stream, "sha256").hexdigest()
             checksums.append(f"{checksum}  {path.name}")
-    (output / f"{sys.platform}-{arch}-SHA256SUMS.txt").write_text("\n".join(checksums) + "\n", encoding="utf-8")
+    (output / f"{sys.platform}-{arch}-SHA256SUMS.txt").write_text("\n".join(checksums) + "\n", encoding="utf-8", newline="\n")
 
 
 if __name__ == "__main__":
