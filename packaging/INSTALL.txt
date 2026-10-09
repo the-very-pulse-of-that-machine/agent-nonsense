@@ -1,0 +1,15 @@
+豆皮桌面版
+
+Windows：运行 setup.exe，按向导安装。也可将 portable.zip 完整解压后运行 Doupi.exe。
+Linux：Ubuntu/Debian 使用 sudo apt install ./doupi_版本_amd64.deb；其他兼容系统可解压 tar.gz 后运行 Doupi/Doupi。
+macOS：打开 dmg，将“豆皮.app”拖入 Applications，再从应用程序打开。
+
+安装包包含 Python 与 Qt，无需另外安装 Python。首次打开后在控制台点击“启动服务”。
+macOS arm64 适用于 Apple Silicon，x64 适用于 Intel。
+当前预览包未使用 Windows 发布者证书或 Apple Developer ID 签名/公证；系统可能显示未知发布者提示。
+macOS 如被系统拦截，请在“系统设置 → 隐私与安全性”中核对来源后允许打开。
+
+设置、个人剧本和 sandbox 保存在当前用户的数据目录，不写入安装目录。
+卸载应用不会删除这些个人数据。
+
+项目与源代码：https://github.com/wahahaha-cpu/agent-nonsense

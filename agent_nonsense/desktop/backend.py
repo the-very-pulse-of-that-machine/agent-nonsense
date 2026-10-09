@@ -1,6 +1,5 @@
 """Asynchronous loopback client and owned server-process lifecycle."""
 import json
-import sys
 import time
 from dataclasses import replace
 from pathlib import Path
@@ -60,7 +59,7 @@ class Backend(QObject):
         if self.process.state() != QProcess.ProcessState.NotRunning:
             return
         try:
-            arguments = config.arguments()
+            executable, arguments = config.launch_command()
         except (ValueError, OSError) as exc:
             self.error.emit(str(exc))
             return
@@ -69,7 +68,7 @@ class Backend(QObject):
         self._output_buffer = self._last_output = ""
         self._launch_time = time.monotonic()
         self._set_state("starting")
-        self.process.start(sys.executable, arguments)
+        self.process.start(executable, arguments)
         self.monitor.setInterval(400)
         self.monitor.start()
 

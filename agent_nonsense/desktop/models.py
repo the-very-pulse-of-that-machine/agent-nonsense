@@ -2,6 +2,7 @@
 import codecs
 import json
 import math
+import sys
 from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 
@@ -78,6 +79,15 @@ class ServerConfig:
             if enabled:
                 args.append("--" + flag)
         return args
+
+    def launch_command(self):
+        arguments = self.arguments()
+        if getattr(sys, "frozen", False):
+            executable = Path(sys.executable)
+            if sys.platform == "win32":
+                executable = executable.with_name("doupi-server.exe")
+            return str(executable), ["--doupi-server", *arguments[3:]]
+        return sys.executable, arguments
 
     def save(self, path):
         self.validate()

@@ -13,3 +13,4 @@ recursive-include agent_nonsense *.ico
 recursive-include docs *.md
 recursive-include docs/assets *.png
 recursive-include tests *.py
+recursive-include packaging *.py *.spec *.iss *.desktop *.txt *.md

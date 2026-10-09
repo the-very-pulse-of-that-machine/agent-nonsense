@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Doupi
+Name[zh_CN]=豆皮
+Comment=Local zero-token agent workbench
+Comment[zh_CN]=本地 Agent 状态工作台
+Exec=doupi
+Icon=doupi
+Terminal=false
+Categories=Development;Utility;
+StartupWMClass=Doupi

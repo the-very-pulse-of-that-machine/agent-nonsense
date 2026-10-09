@@ -14,6 +14,8 @@ All notable changes to Agent Nonsense are documented here. The project follows S
 
 ### Added
 
+- Self-contained Windows x64 EXE installers, Linux x64 DEB packages, and macOS arm64/x64 DMGs, plus portable archives, checksums and native installation smoke tests.
+- GitHub Actions builds on all four target systems, publishes verified preview/release downloads, and preserves diagnostic reports on failure.
 - Optional Python/Qt desktop app (`pip install '.[gui]'`, `doupi`) with a Chinese UI, service lifecycle, configuration, real streaming previews, background jobs, preset editing, and logs.
 - Personal preset copies, validation before atomic saves, loopback-only requests, port-conflict reporting, and cleanup of owned processes on close.
 - Cross-platform launchers, VS Code debug configurations, desktop documentation, and offscreen GUI integration tests.

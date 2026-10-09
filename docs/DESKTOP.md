@@ -4,6 +4,8 @@ Python + Qt（PySide6 Essentials）独立桌面窗口，复用豆皮原有 HTTP 
 
 ## 安装与启动
 
+普通用户可在 [GitHub Releases](https://github.com/wahahaha-cpu/agent-nonsense/releases) 下载包含 Python 与 Qt 的安装包，详见 [安装包指南](INSTALLERS.md)。以下命令适用于源码开发环境。
+
 需要 Python 3.10+。在项目目录创建独立环境：
 
 ```sh

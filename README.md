@@ -14,6 +14,10 @@
 
 新增中文 Python + Qt 桌面工作台，支持服务启停、参数配置、三种协议的实时流预览、后台任务、预设编辑和日志导出。
 
+**直接安装**：在 [GitHub Releases](https://github.com/wahahaha-cpu/agent-nonsense/releases) 下载 Windows `.exe`、Linux `.deb` 或 macOS `.dmg`，包含 Python 和 Qt，无需配置开发环境。安装方式、架构选择和构建验证见 [安装包指南](docs/INSTALLERS.md)。
+
+**从源码运行**：
+
 ```sh
 python -m pip install ".[gui]"
 python -m agent_nonsense.desktop
