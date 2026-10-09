@@ -222,7 +222,8 @@ class Backend(QObject):
         decoder = SSEDecoder()
         self._decoder = decoder
         last_preset_id = None
-        drain_queued = False
+        drain_timer = QTimer(reply)
+        drain_timer.setInterval(10)
         # A watchdog detects a stalled connection without limiting long streams.
         watchdog = QTimer(reply)
         watchdog.setSingleShot(True)
@@ -235,14 +236,11 @@ class Backend(QObject):
         watchdog.timeout.connect(timed_out)
         watchdog.start()
 
-        def drain():
-            nonlocal drain_queued
-            drain_queued = False
-            consume()
-
         def consume(final=False):
-            nonlocal last_preset_id, drain_queued
+            nonlocal last_preset_id
             if self.stream is not reply:
+                return
+            if not final and not reply.bytesAvailable():
                 return
             raw = bytes(reply.readAll() if final else reply.read(64 * 1024))
             if raw:
@@ -269,15 +267,12 @@ class Backend(QObject):
                     text = event_text(event)
                     if text:
                         self.stream_text.emit(text)
-                # Yield to buttons, rendering and cancellation between batches.
-                if not final and self.stream is reply and reply.bytesAvailable() and not drain_queued:
-                    drain_queued = True
-                    QTimer.singleShot(0, drain)
             except (ValueError, UnicodeError) as exc:
                 self.cancel_stream("流解析失败：" + str(exc))
 
         def finished():
             watchdog.stop()
+            drain_timer.stop()
             if self.stream is reply:
                 consume(final=True)
                 if self.stream is reply:
@@ -290,6 +285,10 @@ class Backend(QObject):
 
         reply.readyRead.connect(consume)
         reply.finished.connect(finished)
+        # Qt can coalesce readyRead notifications while a zero-delay producer
+        # keeps the socket busy. Poll bounded batches as well as handling signals.
+        drain_timer.timeout.connect(consume)
+        drain_timer.start()
 
     def cancel_stream(self, reason="已停止输出"):
         reply, self.stream = self.stream, None
