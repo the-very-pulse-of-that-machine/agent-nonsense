@@ -6,7 +6,7 @@ All notable changes to Agent Nonsense are documented here. The project follows S
 
 ### Fixed
 
-- Flush server startup readiness explicitly for framework Python builds, and report occupied Windows ports consistently before launching the owned child process.
+- Avoid reverse DNS during local HTTP server startup, flush readiness immediately, and report occupied Windows ports consistently before launching the owned child process.
 - Continuous random streams now switch tasks after a complete preset and its tool results, instead of repeating the first selection forever. Consecutive random selections avoid immediate repeats; explicit presets and finite responses remain pinned.
 - Desktop previews now display the actual selected task for all three protocols without changing the random selector into a fixed preset.
 - Preview dialogue selection now updates its question and clears the previous output; switching dialogue or protocol during streaming cancels the old reply and starts the selected conversation immediately.

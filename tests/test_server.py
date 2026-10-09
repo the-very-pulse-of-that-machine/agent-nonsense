@@ -16,6 +16,14 @@ from agent_nonsense.server import MockAgentServer, build_argument_parser, create
 
 
 class ConfigurationTestCase(unittest.TestCase):
+    def test_server_startup_does_not_require_reverse_dns(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with mock.patch("socket.getfqdn", side_effect=RuntimeError("Resolver unavailable")):
+                with create_server(host="127.0.0.1", port=0, sandbox=directory) as server:
+                    self.assertEqual(server.server_name, "127.0.0.1")
+                    self.assertEqual(server.server_port, server.server_address[1])
+                    self.assertGreater(server.server_port, 0)
+
     def test_startup_readiness_is_flushed_without_unbuffered_python(self):
         with tempfile.TemporaryDirectory() as directory:
             with socket.socket() as sock:
@@ -32,7 +40,7 @@ class ConfigurationTestCase(unittest.TestCase):
             try:
                 reader.start()
                 reader.join(timeout=5)
-                self.assertTrue(lines, "Server readiness was buffered")
+                self.assertTrue(lines, "Server did not announce readiness")
                 self.assertIn(f"listening on http://127.0.0.1:{port}", lines[0])
             finally:
                 process.terminate()
