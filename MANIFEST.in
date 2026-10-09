@@ -4,6 +4,13 @@ include CONTRIBUTING.md
 include LICENSE
 include README.md
 include SECURITY.md
+include doupi_gui.py
+include *.command
+include *.bat
+recursive-include .vscode *.json
 recursive-include agent_nonsense *.json
+recursive-include agent_nonsense *.ico
 recursive-include docs *.md
+recursive-include docs/assets *.png
 recursive-include tests *.py
+recursive-include packaging *.py *.spec *.iss *.desktop *.txt *.md

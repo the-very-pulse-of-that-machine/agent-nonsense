@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "豆皮 · 桌面 GUI",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "agent_nonsense.desktop",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "豆皮 · API 服务",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "agent_nonsense",
+      "args": ["--port", "8787", "--continuous-stream", "--simulate-tools"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    }
+  ]
+}

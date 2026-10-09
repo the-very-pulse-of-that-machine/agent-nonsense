@@ -10,7 +10,24 @@
 
 ## 安装
 
-需要 Python 3.10 或更高版本，无运行时第三方依赖：
+### 独立桌面 GUI
+
+新增中文 Python + Qt 桌面工作台，支持服务启停、参数配置、三种协议的实时流预览、后台任务、预设编辑和日志导出。
+
+**直接安装**：桌面版发布后，可在 [GitHub Releases](https://github.com/the-very-pulse-of-that-machine/agent-nonsense/releases) 下载 Windows `.exe`、Linux `.deb` 或 macOS `.dmg`，包含 Python 和 Qt，无需配置开发环境。当前贡献分支的预览包、安装方式、架构选择和构建验证见 [安装包指南](docs/INSTALLERS.md)。
+
+**从源码运行**：
+
+```sh
+python -m pip install ".[gui]"
+python -m agent_nonsense.desktop
+```
+
+也可以运行 `doupi`。完整的虚拟环境、双击启动和 VS Code 调试说明见 [桌面版使用指南](docs/DESKTOP.md)。纯 API 安装无需 Qt，继续使用下方命令。
+
+![豆皮桌面控制台](docs/assets/doupi-overview.png)
+
+仅 API 模式需要 Python 3.10 或更高版本，无运行时第三方依赖：
 
 ```powershell
 python -m pip install .
@@ -86,7 +103,7 @@ Streaming: enabled
 
 ## 预制长对话
 
-预制剧本保存在 `agent_nonsense/presets.json`，当前包含文件读写、API 超时、前端状态、数据库迁移、依赖升级、CI 偶发失败、内存增长、并发竞态、认证权限和发布打包十组任务。每条新的聊天请求都会重新随机选择一组，不再根据 prompt 关键词固定主题；同一条流式响应内部保持一致。简洁纲要在加载时由 `longform.py` 编译为至少 5000 字的完整内容，每个阶段输出“判断、依据、风险、验证和下一步”，并在指定阶段触发 sandbox 工具。
+预制剧本保存在 `agent_nonsense/presets.json`，当前包含文件读写、API 超时、前端状态、数据库迁移、依赖升级、CI 偶发失败、内存增长、并发竞态、认证权限和发布打包十组任务。每条新的聊天请求都会重新随机选择一组，并避开上一次随机选择的剧本（只有一份时继续使用该份）。有限响应保持同一主题；随机连续输出在每份完整剧本及其工具结果结束后自动随机换下一份，避免连续重复。显式指定 `preset` 时只播放该份剧本。简洁纲要在加载时由 `longform.py` 编译为至少 5000 字的完整内容，每个阶段输出“判断、依据、风险、验证和下一步”，并在指定阶段触发 sandbox 工具。
 
 需要可重复测试时，仍可通过请求显式指定剧本：
 

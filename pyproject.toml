@@ -32,9 +32,16 @@ Issues = "https://github.com/the-very-pulse-of-that-machine/agent-nonsense/issue
 [project.scripts]
 agent-nonsense = "agent_nonsense.server:main"
 
+[project.optional-dependencies]
+gui = ["PySide6-Essentials==6.11.2"]
+
+[project.gui-scripts]
+doupi = "agent_nonsense.desktop:main"
+
 [tool.setuptools]
-packages = ["agent_nonsense"]
+packages = ["agent_nonsense", "agent_nonsense.desktop"]
 include-package-data = true
 
 [tool.setuptools.package-data]
 agent_nonsense = ["presets.json"]
+"agent_nonsense.desktop" = ["assets/*.ico"]
