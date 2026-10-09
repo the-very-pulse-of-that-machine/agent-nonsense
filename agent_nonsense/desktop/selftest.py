@@ -75,7 +75,8 @@ def run(report_path):
             assert selected[0]["id"] != selected[1]["id"], "Random rotation repeated"
             assert window.backend.stream is reply, "Rotation restarted the connection"
             assert window.preset_combo.currentData() == "", "Random mode became pinned"
-            window.backend.cancel_stream()
+            window.preview_stop.click()
+            assert window.preview_status.text() == "已停止输出"
             report["checks"].append("continuous random rotation and cancellation")
             window.close()
             app.processEvents()

@@ -72,6 +72,13 @@ class DesktopModelsTestCase(unittest.TestCase):
     def test_sse_flushes_unterminated_final_event(self):
         self.assertEqual(SSEDecoder().feed(b"data: last", final=True), ["last"])
 
+    def test_sse_large_coalesced_batch_preserves_order_and_partial_tail(self):
+        events = [json.dumps({"index": i, "delta": "豆皮" * 128 + "🌱"}, ensure_ascii=False) for i in range(12000)]
+        parser = SSEDecoder()
+        wire = ("".join("data: " + event + "\r\n\r\n" for event in events) + "data: 最后").encode()
+        self.assertEqual(parser.feed(wire), events)
+        self.assertEqual(parser.feed("一个事件\n\n".encode(), final=True), ["最后一个事件"])
+
     def test_request_and_text_mapping_for_all_protocols(self):
         for protocol, path in (("Responses", "/v1/responses"), ("Messages", "/v1/messages"),
                                ("Chat Completions", "/v1/chat/completions")):

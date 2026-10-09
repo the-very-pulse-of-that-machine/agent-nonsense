@@ -149,8 +149,11 @@ class SSEDecoder:
     def feed(self, chunk, final=False):
         self.buffer += self.decoder.decode(chunk, final=final)
         result = []
-        while "\n" in self.buffer:
-            line, self.buffer = self.buffer.split("\n", 1)
+        # Split each received batch once. Repeatedly copying the remaining
+        # buffer becomes quadratic when fast streams deliver large batches.
+        lines = self.buffer.split("\n")
+        self.buffer = lines.pop()
+        for line in lines:
             line = line.removesuffix("\r")
             if not line:
                 if self.data:

@@ -217,10 +217,12 @@ class Backend(QObject):
         request.setRawHeader(b"Accept", b"text/event-stream")
         request.setTransferTimeout(0)
         reply = self.network.post(request, json.dumps(body, ensure_ascii=False).encode("utf-8"))
+        reply.setReadBufferSize(256 * 1024)
         self.stream = reply
         decoder = SSEDecoder()
         self._decoder = decoder
         last_preset_id = None
+        drain_queued = False
         # A watchdog detects a stalled connection without limiting long streams.
         watchdog = QTimer(reply)
         watchdog.setSingleShot(True)
@@ -233,11 +235,16 @@ class Backend(QObject):
         watchdog.timeout.connect(timed_out)
         watchdog.start()
 
+        def drain():
+            nonlocal drain_queued
+            drain_queued = False
+            consume()
+
         def consume(final=False):
-            nonlocal last_preset_id
+            nonlocal last_preset_id, drain_queued
             if self.stream is not reply:
                 return
-            raw = bytes(reply.readAll())
+            raw = bytes(reply.readAll() if final else reply.read(64 * 1024))
             if raw:
                 watchdog.start()
             status = reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
@@ -262,6 +269,10 @@ class Backend(QObject):
                     text = event_text(event)
                     if text:
                         self.stream_text.emit(text)
+                # Yield to buttons, rendering and cancellation between batches.
+                if not final and self.stream is reply and reply.bytesAvailable() and not drain_queued:
+                    drain_queued = True
+                    QTimer.singleShot(0, drain)
             except (ValueError, UnicodeError) as exc:
                 self.cancel_stream("流解析失败：" + str(exc))
 

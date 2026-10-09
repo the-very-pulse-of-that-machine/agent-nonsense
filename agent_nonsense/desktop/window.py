@@ -283,7 +283,7 @@ class MainWindow(QMainWindow):
         self.prompt.setPlaceholderText("输入一条测试请求…")
         controls.box.addWidget(self.prompt)
         self.preview_start = button("▶  发送请求", self.start_preview, primary=True)
-        self.preview_stop = button("停止输出", self.backend.cancel_stream)
+        self.preview_stop = button("停止输出", lambda: self.backend.cancel_stream())
         self.preview_stop.setEnabled(False)
         self.preview_status = label("启动服务后即可预览", muted=True)
         controls.box.addLayout(row(self.preview_start, self.preview_stop, None, self.preview_status))

@@ -6,6 +6,7 @@ All notable changes to Agent Nonsense are documented here. The project follows S
 
 ### Fixed
 
+- Parse coalesced SSE batches in linear time and drain live replies in bounded batches so fast continuous output keeps the desktop responsive. The stop button retains the correct cancellation status.
 - Avoid reverse DNS during local HTTP server startup, flush readiness immediately, and report occupied Windows ports consistently before launching the owned child process.
 - Continuous random streams now switch tasks after a complete preset and its tool results, instead of repeating the first selection forever. Consecutive random selections avoid immediate repeats; explicit presets and finite responses remain pinned.
 - Desktop previews now display the actual selected task for all three protocols without changing the random selector into a fixed preset.
