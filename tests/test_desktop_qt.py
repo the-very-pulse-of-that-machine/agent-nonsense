@@ -9,7 +9,6 @@ from pathlib import Path
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 try:
     from PySide6.QtCore import QProcess
-    from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QApplication
     from agent_nonsense.desktop.window import MainWindow
     from agent_nonsense.desktop.theme import STYLE
@@ -53,7 +52,9 @@ class DesktopQtTestCase(unittest.TestCase):
             self.app.processEvents()
             if predicate():
                 return
-            QTest.qWait(20)
+            # Yield between bounded event drains so a continuous SSE stream
+            # cannot keep a nested Qt test event loop busy past the deadline.
+            time.sleep(0.02)
         backend = self.window.backend
         diagnostics = f"state={backend.state}, process={backend.process.state()}, pid={backend.process.processId()}, ready={backend._ready}"
         if backend.config and backend.process.state() == QProcess.ProcessState.Running:

@@ -33,7 +33,7 @@ Issues = "https://github.com/wahahaha-cpu/agent-nonsense/issues"
 agent-nonsense = "agent_nonsense.server:main"
 
 [project.optional-dependencies]
-gui = ["PySide6-Essentials>=6.6,<7"]
+gui = ["PySide6-Essentials==6.11.2"]
 
 [project.gui-scripts]
 doupi = "agent_nonsense.desktop:main"
